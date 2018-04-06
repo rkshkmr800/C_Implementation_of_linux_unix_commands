@@ -7,71 +7,70 @@
 #include <sys/stat.h>
 
 /*
-
 function to recursively delete directories
 arguments:
 present_path: directory path to recursively delete (full path)
-
 */
 void recursive_delete_directory(char present_path[100])
 {
-	struct dirent *sd=NULL;	//pointer for each member of directory
-	struct direct **files; //each member list
+	struct dirent *sd=NULL;					//pointer for each member of directory
+	struct direct **files; 					//each member list
 	int i;
 	char path[100];
-
-	scandir(present_path, &files, NULL, alphasort);	//scan files and directories
-
-	while((sd=*files++)!=NULL)	//iterate over each member of directroy
+	
+	//scan files and directories
+	scandir(present_path, &files, NULL, alphasort);	
+	
+	while((sd=*files++)!=NULL)				//iterate over each member of directroy
 	{
 		i++;
-		if(i<=2)	//to skip the default directories of unix
+		//to skip the default directories of unix
+		if(i<=2)	
 			continue;
-
 		if(strcmp(sd->d_name,".") && strcmp(sd->d_name,".."))
 		{
-			strcpy(path,present_path);	//copy present directory to temp variable
+			strcpy(path,present_path);		//copy present directory to temp variable
 			strcat(path,"/");
 			strcat(path,sd->d_name);
 
-			struct stat fileStat;	//strcuture to store the info of each member
-			stat(path,&fileStat);   //info of each member
+			struct stat fileStat;			//strcuture to store the info of each member
+			stat(path,&fileStat);   		//info of each member
 
 			if( access( path, F_OK ) != -1 ) 
 			{
 				DIR* directory = opendir(path);
-
 				if(directory)
 				{
-					recursive_delete_directory(path);	//if directory call again
+					recursive_delete_directory(path);	
+					//if directory call again
 				}
 				else
 				{
-					int ret = remove(path);	//simple file
+					int ret = remove(path);	//simple file delete
 					if(ret) 
 					{
 						printf("Error: unable to delete the file : %s\n",path);
 					}
 				}
-
-				closedir(directory);	//close directory at end of usage
+				//close directory at end of usage
+				closedir(directory);	
 			}
 		}
-
 	}
-
 	remove(present_path);
 };
 
 int main(int argc, char **argv)
 {
 	char path[100],path_dest[100],present_path[100],temp_path[100];	//to store present path, temporary strings
-	char **arg; //to store the command line arguments
-	size_t size=100;	//specify buffer size
-	struct dirent *sd=NULL;	//pointer for each member of directory
-	struct direct **files; //each member list
+	char **arg; 							//to store the command line arguments
+	size_t size=100;						//specify buffer size
+	struct dirent *sd=NULL;						//pointer for each member of directory
+	struct direct **files;						//each member list
 	int i,f;
-	getcwd(present_path,size);	//get present directory
+	
+	//get present directory
+	getcwd(present_path,size);	
 
 	if(argc ==1)
 	{
@@ -84,31 +83,33 @@ int main(int argc, char **argv)
 		{
 			for (arg = (argv+2); arg != argv+argc ; arg++) 
 			{
-				strcpy(path,present_path);	//copy present directory to temp variable
+				//copy present directory to temp variable
+				strcpy(path,present_path);	
 
 				if(*arg!=NULL)
 				{
-					if(*arg[0]=='/')	// absolute path
+					// absolute path
+					if(*arg[0]=='/')	
 						strcpy(path,*arg);
-					else	// relativce path
+					else
 					{
+						//creating the relative path string
 						strcat(path,"/");
-						strcat(path,*arg);	//creating the path string
+						strcat(path,*arg);	
 					}
-					struct stat fileStat;	//strcuture to store the info of each member
-					stat(path,&fileStat);   //info of each member
+					struct stat fileStat;		//strcuture to store the info of each member
+					stat(path,&fileStat);   	//info of each member
 
 					if( access( path, F_OK ) != -1 ) 
 					{
-
-			    		//int f = (S_ISREG(fileStat.st_mode)) ? 0 : 1;	//directory or not
-			    		DIR* directory = opendir(path);
-			    		if(directory)
-					    {
-							recursive_delete_directory(path);	//recursive call
-					    }
-					    else
-					    {
+			    			DIR* directory = opendir(path);
+			    			if(directory)
+					    	{	
+							//recursive call
+							recursive_delete_directory(path);	
+					   	}
+					    	else
+					    	{
 							int ret = remove(path);	//simple file to delete
 						   	if(ret) 
 							{
@@ -117,12 +118,11 @@ int main(int argc, char **argv)
 						}
 						closedir(directory);
 					} 
-					else //error message
+					else 
 					{
-					    // file doesn't exist
+					    // file doesn't exist error message
 					    printf("no file : %s\n",path );
 					}
-					
 				}
 			}
 		}
@@ -130,50 +130,50 @@ int main(int argc, char **argv)
 		{
 			for (arg = (argv+1); arg != argv+argc ; arg++) 
 			{
-				strcpy(path,present_path);	//copy present directory to temp variable
+				//copy present directory to temp variable
+				strcpy(path,present_path);	
 
 				if(*arg!=NULL)
 				{
-					if(*arg[0]=='/')	// absolute path
+					// absolute path
+					if(*arg[0]=='/')	
 						strcpy(path,*arg);
-					else	// relativce path
+					else				
 					{
+						//creating the relative path string
 						strcat(path,"/");
-						strcat(path,*arg);	//creating the path string
+						strcat(path,*arg);	
 					}
-					struct stat fileStat;	//strcuture to store the info of each member
-					stat(path,&fileStat);   //info of each member
+					struct stat fileStat;			//strcuture to store the info of each member
+					stat(path,&fileStat);   		//info of each member
 
 					if( access( path, F_OK ) != -1 ) 
 					{
-
-			    		//int f = (S_ISREG(fileStat.st_mode)) ? 0 : 1;	//directory or not
-			    		DIR* directory = opendir(path);
-			    		if(directory)
-					    {
+			    			DIR* directory = opendir(path);
+			    			if(directory)
+					    	{
 							scandir(path, &files, NULL, alphasort);
 
 							i =0;
 							f = 0;
 
-					        while((sd=*files++)!=NULL)	//iterate over each member of directroy
-					        {
+							while((sd=*files++)!=NULL)	//iterate over each member of directroy
+							{
 
-					        	i++;
-					        	if(i<=2)
-					        		continue;
-					        	f=1;
-					        	break;
-					        }
-
-					        if(f==0)	// simple file
-								remove(path);
-					        else	//directory
-					        	printf("myrm: cannot remove '%s': Is a non-empty directory\n", basename(path));
-					    }
-					    else
-					    {
-							int ret = remove(path);	//simple file to delete
+								i++;
+								if(i<=2)
+									continue;
+								f=1;
+								break;
+							}
+							if(f==0)	
+									remove(path);	//simple file to delete
+							else				//directory
+								printf("myrm: cannot remove '%s': Is a non-empty directory\n", basename(path));
+					    	}
+					    	else
+					    	{
+							int ret = remove(path);		//simple file to delete
 						   	if(ret) 	
 							{
 							    printf("Error: unable to delete the file : %s\n",path);
@@ -181,12 +181,11 @@ int main(int argc, char **argv)
 						}
 						closedir(directory);
 					} 
-					else //error message
+					else
 					{
-					    // file doesn't exist
+					    // file doesn't exist error msg
 					    printf("no file : %s\n",path );
 					}
-					
 				}
 			}
 		}
