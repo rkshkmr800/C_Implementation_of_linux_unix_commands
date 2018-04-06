@@ -153,13 +153,12 @@ int main(int argc, char **argv)
 			    			if(directory)
 					    	{
 							scandir(path, &files, NULL, alphasort);
-
+							
 							i =0;
 							f = 0;
-
+							
 							while((sd=*files++)!=NULL)	//iterate over each member of directroy
 							{
-
 								i++;
 								if(i<=2)
 									continue;
